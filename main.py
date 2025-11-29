@@ -79,11 +79,14 @@ async def check_market():
                 embed.add_field(name="現在最安値", value=f"${cheapest.price:,}", inline=True)
                 embed.add_field(name="ソース", value=cheapest.source, inline=True)
                 embed.add_field(name="数量", value=f"{cheapest.quantity:,}", inline=True)
+                if cheapest.source in ['Market', 'Bazaar']:
+                    if cheapest.source == 'Market':
+                        source_url = f"https://www.torn.com/page.php?sid=ItemMarket#/market/view=search&itemID={cheapest.item_id}"
+                    else:
+                        source_url = f"https://www.torn.com/bazaar.php?userId={cheapest.player_id}&itemId={cheapest.item_id}&highlight=1#/"
+                    embed.add_field(name="URL", value=source_url, inline=False)
 
                 await channel.send(embed=embed)
-
-                db.remove_watch(item_id)
-
         except Exception as e:
             print(f"Error checking item {item_id}: {e}")
             continue
