@@ -79,8 +79,8 @@ async def check_market():
                 embed.add_field(name="現在最安値", value=f"${cheapest.price:,}", inline=True)
                 embed.add_field(name="ソース", value=cheapest.source, inline=True)
                 embed.add_field(name="数量", value=f"{cheapest.quantity:,}", inline=True)
-                if cheapest.source in ['Market', 'Bazaar']:
-                    if cheapest.source == 'Market':
+                if cheapest.source in ['ItemMarket', 'Bazaar']:
+                    if cheapest.source == 'ItemMarket':
                         source_url = f"https://www.torn.com/page.php?sid=ItemMarket#/market/view=search&itemID={cheapest.item_id}"
                     else:
                         source_url = f"https://www.torn.com/bazaar.php?userId={cheapest.player_id}&itemId={cheapest.item_id}&highlight=1#/"
