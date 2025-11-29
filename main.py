@@ -20,7 +20,7 @@ db.init_db()
 
 # APIキーの取得
 try:
-    API_KEY = config.Torn.API_Key
+    API_KEY = config.Torn.ApiKey
 except AttributeError:
     API_KEY = marketplace.TORN_API_KEY
 
@@ -45,7 +45,7 @@ async def check_market():
 
     watches = db.get_all_watches()
 
-    items_to_check = {}
+    items_to_check: dict[int, list[tuple[int, int, int, int]]] = {}
     for watch in watches:
         w_id, user_id, item_id, threshold = watch
         if item_id not in items_to_check:
@@ -56,7 +56,7 @@ async def check_market():
 
     for item_id, watch_list in items_to_check.items():
         # APIコール待機 (レート制限考慮)
-        await asyncio.sleep(1)
+        await asyncio.sleep(10)
 
         try:
             # 非同期でデータを取得
@@ -83,8 +83,7 @@ async def check_market():
                 if cheapest.price <= threshold:
                     # 通知
                     item_name = db.get_item_name(item_id) or f"Item {item_id}"
-                    user = client.get_user(user_id)
-                    mention = user.mention if user else f"User {user_id}"
+                    mention = f"<@{user_id}>"
 
                     embed = Embed(title=f"Price Alert: {item_name}", color=Color.red())
                     embed.description = f"{mention}, 目標価格 ${threshold:,} を下回りました！"
@@ -125,7 +124,7 @@ async def on_message(message: discord.Message):
     content_after_mention = message.content.replace(f"<@{client.user.id}>", "").strip()
 
     try:
-        if hasattr(config.Discord, 'Admins') and message.author.id in config.Discord.Admins:
+        if message.author.id in config.Discord.Admins:
             if content_after_mention == "kill":
                 print("シャットダウンコマンドを受け取りました。")
                 await client.close()
