@@ -1,0 +1,6 @@
+class Discord:
+    Token: str = "BOT_TOKEN"
+    Admins: list[int] = []
+
+class Torn:
+    ApiKey: str = "TORN_API_KEY"

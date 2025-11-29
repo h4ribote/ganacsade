@@ -2,7 +2,7 @@ import requests
 import cloudscraper
 from typing import List, Optional, Union
 
-TORN_API_KEY = "YOUR_API_KEY_HERE"
+TORN_API_KEY = "TORN_API_KEY"
 
 class Listing:
     """個々の出品情報を表すクラス"""
@@ -125,7 +125,7 @@ def fetch_item_market_data(item_id: int, api_key: str) -> List[Listing]:
     """
     新規関数: Item Marketデータを取得 (api.torn.com v2)
     """
-    if not api_key or api_key == "YOUR_API_KEY_HERE":
+    if not api_key or api_key == "TORN_API_KEY":
         print("[Item Market] APIキーが設定されていないため、スキップします。")
         return []
 
