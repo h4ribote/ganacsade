@@ -3,19 +3,20 @@ from discord import app_commands
 from discord.ext import tasks
 import config
 import bot_commands
+from sqlite_client import SQLiteClient
 
 intents = discord.Intents.default()
 client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
 
 @tasks.loop(seconds=10)
-async def task_loop():
+async def check_market():
     ...
 
 @client.event
 async def on_ready():
-    if not task_loop.is_running():
-        task_loop.start()
+    if not check_market.is_running():
+        check_market.start()
     print(f'"{client.user}" としてログインしました')
     try:
         await tree.sync()
