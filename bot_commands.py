@@ -107,3 +107,19 @@ def setup(tree: app_commands.CommandTree, client: discord.Client, db: SQLiteClie
         db.add_watch(item_id, price)
 
         await interaction.followup.send(f"'{official_name}' が ${price:,} を下回ったら通知します。")
+
+    @tree.command(name="watchlist", description="監視中のアイテム一覧を表示します")
+    async def watchlist(interaction: Interaction):
+        watches = db.get_all_watches()
+
+        if not watches:
+            await interaction.response.send_message("現在監視中のアイテムはありません。", ephemeral=True)
+            return
+
+        embed = Embed(title="監視リスト", color=Color.blue())
+
+        for item_id, threshold in watches:
+            item_name = db.get_item_name(item_id) or f"Unknown Item (ID: {item_id})"
+            embed.add_field(name=item_name, value=f"${threshold:,}")
+        
+        await interaction.response.send_message(embed=embed)
