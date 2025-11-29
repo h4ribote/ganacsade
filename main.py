@@ -6,8 +6,8 @@ import bot_commands
 import marketplace
 from sqlite_client import SQLiteClient
 import asyncio
-import traceback
 import functools
+import time
 
 intents = discord.Intents.default()
 # intents.message_content = True # 必要に応じて
@@ -24,8 +24,18 @@ try:
 except AttributeError:
     API_KEY = marketplace.TORN_API_KEY
 
+UniqueKey = tuple[int, int, int, int, str]
+
+# 通知済みアイテムのキャッシュ
+# Key: (item_id, player_id, price, quantity, source)
+# Value: timestamp
+notified_listings: dict[UniqueKey, float] = {}
+CACHE_TTL = 600
+
 @tasks.loop(minutes=1) # 1分毎にチェック
 async def check_market():
+    global notified_listings
+    
     # 通知チャンネルの取得
     channel_id_str = db.get_config("notification_channel_id")
     if not channel_id_str:
@@ -42,6 +52,12 @@ async def check_market():
                  return
     except ValueError:
         return
+
+    # 古いキャッシュの削除 (TTL経過後)
+    current_time = time.time()
+    keys_to_remove = [k for k, v in notified_listings.items() if current_time - v > CACHE_TTL]
+    for k in keys_to_remove:
+        del notified_listings[k]
 
     watches = db.get_all_watches()
 
@@ -71,6 +87,17 @@ async def check_market():
             cheapest = min(all_listings, key=lambda x: x.price)
 
             if cheapest.price <= threshold:
+                unique_key = (
+                    cheapest.item_id,
+                    cheapest.player_id,
+                    cheapest.price,
+                    cheapest.quantity,
+                    cheapest.source
+                )
+
+                if unique_key in notified_listings:
+                    continue
+
                 # 通知
                 item_name = db.get_item_name(item_id) or f"Item {item_id}"
 
@@ -87,6 +114,9 @@ async def check_market():
                     embed.add_field(name="URL", value=source_url, inline=False)
 
                 await channel.send(embed=embed)
+                
+                notified_listings[unique_key] = current_time
+
         except Exception as e:
             print(f"Error checking item {item_id}: {e}")
             continue
