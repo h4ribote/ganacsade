@@ -104,6 +104,6 @@ def setup(tree: app_commands.CommandTree, client: discord.Client, db: SQLiteClie
 
         official_name = db.get_item_name(item_id)
 
-        db.add_watch(interaction.user.id, item_id, price)
+        db.add_watch(item_id, price)
 
         await interaction.followup.send(f"'{official_name}' が ${price:,} を下回ったら通知します。")

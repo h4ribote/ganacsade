@@ -45,16 +45,10 @@ async def check_market():
 
     watches = db.get_all_watches()
 
-    items_to_check: dict[int, list[tuple[int, int, int, int]]] = {}
-    for watch in watches:
-        w_id, user_id, item_id, threshold = watch
-        if item_id not in items_to_check:
-            items_to_check[item_id] = []
-        items_to_check[item_id].append(watch)
-
+    # watches is List[Tuple[int, int]] -> [(item_id, threshold), ...]
     loop = asyncio.get_running_loop()
 
-    for item_id, watch_list in items_to_check.items():
+    for item_id, threshold in watches:
         # APIコール待機 (レート制限考慮)
         await asyncio.sleep(10)
 
@@ -76,24 +70,19 @@ async def check_market():
 
             cheapest = min(all_listings, key=lambda x: x.price)
 
-            # 監視リストと照合
-            for watch in watch_list:
-                w_id, user_id, i_id, threshold = watch
+            if cheapest.price <= threshold:
+                # 通知
+                item_name = db.get_item_name(item_id) or f"Item {item_id}"
 
-                if cheapest.price <= threshold:
-                    # 通知
-                    item_name = db.get_item_name(item_id) or f"Item {item_id}"
-                    mention = f"<@{user_id}>"
+                embed = Embed(title=f"Price Alert: {item_name}", color=Color.red())
+                embed.description = f"目標価格 ${threshold:,} を下回りました！"
+                embed.add_field(name="現在最安値", value=f"${cheapest.price:,}", inline=True)
+                embed.add_field(name="ソース", value=cheapest.source, inline=True)
+                embed.add_field(name="数量", value=f"{cheapest.quantity:,}", inline=True)
 
-                    embed = Embed(title=f"Price Alert: {item_name}", color=Color.red())
-                    embed.description = f"{mention}, 目標価格 ${threshold:,} を下回りました！"
-                    embed.add_field(name="現在最安値", value=f"${cheapest.price:,}", inline=True)
-                    embed.add_field(name="ソース", value=cheapest.source, inline=True)
-                    embed.add_field(name="数量", value=f"{cheapest.quantity:,}", inline=True)
+                await channel.send(embed=embed)
 
-                    await channel.send(content=mention, embed=embed)
-
-                    db.remove_watch(w_id)
+                db.remove_watch(item_id)
 
         except Exception as e:
             print(f"Error checking item {item_id}: {e}")
