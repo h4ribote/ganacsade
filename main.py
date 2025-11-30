@@ -30,7 +30,7 @@ UniqueKey = tuple[int, int, int, int, str]
 # Key: (item_id, player_id, price, quantity, source)
 # Value: timestamp
 notified_listings: dict[UniqueKey, float] = {}
-CACHE_TTL = 300
+CACHE_TTL = 600
 
 @tasks.loop(seconds=5)
 async def check_market():
