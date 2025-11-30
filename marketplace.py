@@ -105,21 +105,22 @@ def fetch_bazaar_data(item_id: int) -> Optional[MarketResponse]:
     既存関数: Bazaarデータを取得 (weav3r.dev)
     """
     url = f"https://weav3r.dev/api/marketplace/{item_id}"
-    scraper = cloudscraper.create_scraper()
-
+    
     headers = {
         'Host': 'weav3r.dev',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:145.0) Gecko/20100101 Firefox/145.0',
     }
 
-    try:
-        response = scraper.get(url, headers=headers)
-        response.raise_for_status()
-        data = response.json()
-        return MarketResponse.from_dict(data)
-    except Exception as e:
-        print(f"[Bazaar] エラー発生: {e}")
-        return None
+    # Ensure the scraper session is closed after use
+    with cloudscraper.create_scraper() as scraper:
+        try:
+            response = scraper.get(url, headers=headers)
+            response.raise_for_status()
+            data = response.json()
+            return MarketResponse.from_dict(data)
+        except Exception as e:
+            print(f"[Bazaar] エラー発生: {e}")
+            return None
 
 def fetch_item_market_data(item_id: int, api_key: str) -> List[Listing]:
     """
