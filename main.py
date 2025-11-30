@@ -104,9 +104,10 @@ async def check_market():
                 embed = Embed(title=f"Price Alert: {item_name}", color=Color.red())
                 embed.description = f"${cheapest.price:,} x {cheapest.quantity:,}"
                 embed.add_field(name="目標価格", value=f"${threshold:,}", inline=True)
+                embed.add_field(name="最安値", value=f"${cheapest.price:,}", inline=True)
                 embed.add_field(name="出品者", value=cheapest.player_name, inline=False)
                 embed.add_field(name="数量", value=f"{cheapest.quantity:,}", inline=True)
-                embed.add_field(name="差額", value=f"${threshold - cheapest.price}", inline=True)
+                embed.add_field(name="差額", value=f"${threshold - cheapest.price:,}", inline=True)
                 if cheapest.source in ['ItemMarket', 'Bazaar']:
                     if cheapest.source == 'ItemMarket':
                         source_url = f"https://www.torn.com/page.php?sid=ItemMarket#/market/view=search&itemID={cheapest.item_id}"
