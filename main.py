@@ -30,9 +30,9 @@ UniqueKey = tuple[int, int, int, int, str]
 # Key: (item_id, player_id, price, quantity, source)
 # Value: timestamp
 notified_listings: dict[UniqueKey, float] = {}
-CACHE_TTL = 600
+CACHE_TTL = 300
 
-@tasks.loop(minutes=1) # 1分毎にチェック
+@tasks.loop(seconds=5)
 async def check_market():
     global notified_listings
     
@@ -66,7 +66,7 @@ async def check_market():
 
     for item_id, threshold in watches:
         # APIコール待機 (レート制限考慮)
-        await asyncio.sleep(10)
+        await asyncio.sleep(5)
 
         try:
             # 非同期でデータを取得
