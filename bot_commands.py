@@ -23,11 +23,11 @@ def setup(tree: app_commands.CommandTree, client: discord.Client, db: SQLiteClie
         # 2. DBになければAPIから全アイテム取得して更新 (APIキーがある場合)
         if not item_id:
             if api_key and api_key != "TORN_API_KEY":
-                 # Run fetch_all_items in executor
-                 items = await loop.run_in_executor(None, marketplace.fetch_all_items, api_key)
-                 if items:
-                     db.upsert_items(items)
-                     item_id = db.get_item_id(item_name)
+                # Run fetch_all_items in executor
+                items = await loop.run_in_executor(None, marketplace.fetch_all_items, api_key)
+                if items:
+                    db.upsert_items(items)
+                    item_id = db.get_item_id(item_name)
 
         if not item_id:
              await interaction.followup.send(f"アイテム '{item_name}' が見つかりませんでした。正確な名前を入力してください。", ephemeral=True)
