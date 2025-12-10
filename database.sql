@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS items (
     item_id INTEGER PRIMARY KEY,
-    name TEXT NOT NULL
+    name VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS watch_list (
@@ -9,6 +9,6 @@ CREATE TABLE IF NOT EXISTS watch_list (
 );
 
 CREATE TABLE IF NOT EXISTS bot_config (
-    conf_name TEXT PRIMARY KEY,
+    conf_name VARCHAR(255) PRIMARY KEY,
     conf_value TEXT
 );

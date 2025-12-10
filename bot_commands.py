@@ -1,12 +1,11 @@
 import discord
 from discord import app_commands, Embed, Color, User, Interaction
-from typing import Optional, List
+from typing import Optional, List, Any
 import marketplace
-from sqlite_client import SQLiteClient
 import asyncio
 import functools
 
-def setup(tree: app_commands.CommandTree, client: discord.Client, db: SQLiteClient, api_key: str):
+def setup(tree: app_commands.CommandTree, client: discord.Client, db: Any, api_key: str):
 
     @tree.command(name="price", description="アイテムの最安値を検索します")
     @app_commands.describe(item_name="検索するアイテム名")

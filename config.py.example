@@ -4,3 +4,16 @@ class Discord:
 
 class Torn:
     ApiKey: str = "TORN_API_KEY"
+
+class Database:
+    Type: str = "SQLite" # "SQLite" or "MySQL"
+
+    # SQLite settings
+    Path: str = "ganacsade.db"
+
+    # MySQL settings
+    Host: str = "127.0.0.1"
+    Port: int = 3306
+    User: str = "root"
+    Password: str = "password"
+    Name: str = "ganacsade"

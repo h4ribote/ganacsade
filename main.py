@@ -5,6 +5,10 @@ import config
 import bot_commands
 import marketplace
 from sqlite_client import SQLiteClient
+try:
+    from mysql_client import MySQLClient
+except ImportError:
+    MySQLClient = None
 import asyncio
 import functools
 import time
@@ -15,7 +19,23 @@ client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
 
 # DBの初期化
-db = SQLiteClient()
+db_type = getattr(config, "Database", None)
+if db_type and hasattr(db_type, "Type") and db_type.Type.lower() == "mysql":
+    if MySQLClient is None:
+        raise ImportError("PyMySQL is required for MySQL support. Please install it.")
+    db = MySQLClient(
+        host=db_type.Host,
+        port=db_type.Port,
+        user=db_type.User,
+        password=db_type.Password,
+        db_name=db_type.Name
+    )
+else:
+    db_path = "ganacsade.db"
+    if db_type and hasattr(db_type, "Path"):
+        db_path = db_type.Path
+    db = SQLiteClient(db_path)
+
 db.init_db()
 
 # APIキーの取得
